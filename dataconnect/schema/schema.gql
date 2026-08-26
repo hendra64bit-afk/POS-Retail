@@ -1,0 +1,35 @@
+type Category @table {
+  name: String!
+  description: String
+}
+
+type Product @table {
+  name: String!
+  price: Float!
+  stockQuantity: Int!
+  category: Category!
+  barcode: String
+  imageUrl: String
+}
+
+type Transaction @table {
+  timestamp: Timestamp!
+  totalAmount: Float!
+  paymentMethod: String!
+  customerName: String
+  notes: String
+}
+
+type TransactionItem @table {
+  transaction: Transaction!
+  product: Product!
+  quantity: Int!
+  priceAtTime: Float!
+}
+
+type StoreProfile @table {
+  storeName: String!
+  address: String
+  phoneNumber: String
+  currency: String
+}

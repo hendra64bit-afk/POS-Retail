@@ -1,0 +1,99 @@
+mutation CreateCategory @auth(level: USER) {
+  category_insert(data: { name: "Electronics" })
+}
+
+mutation CreateProduct @auth(level: USER) {
+  product_insert(data: { name: "Laptop", price: 999.99, stockQuantity: 10, category: { id: "00000000-0000-0000-0000-000000000000" } })
+}
+
+mutation CreateStoreProfile @auth(level: USER) {
+  storeProfile_insert(data: { storeName: "Main Street Electronics" })
+}
+
+mutation CreateTransaction @auth(level: USER) {
+  transaction_insert(data: { timestamp: "2023-10-27T10:00:00Z", totalAmount: 999.99, paymentMethod: "Credit Card" })
+}
+
+mutation CreateTransactionItem @auth(level: USER) {
+  transactionItem_insert(data: { quantity: 1, priceAtTime: 999.99, product: { id: "00000000-0000-0000-0000-000000000000" }, transaction: { id: "00000000-0000-0000-0000-000000000000" } })
+}
+
+query GetCategory($id: UUID!) @auth(level: PUBLIC, insecureReason: "Categories are public information.") {
+  category(id: $id) { name description }
+}
+
+query GetProduct($id: UUID!) @auth(level: PUBLIC, insecureReason: "Products are public information.") {
+  product(id: $id) { name price category { name } }
+}
+
+query GetStoreProfile($id: UUID!) @auth(level: PUBLIC, insecureReason: "Store information is public.") {
+  storeProfile(id: $id) { storeName address }
+}
+
+query GetTransaction($id: UUID!) @auth(level: USER) {
+  transaction(id: $id) { totalAmount paymentMethod }
+}
+
+query GetTransactionItem($id: UUID!) @auth(level: USER) {
+  transactionItem(id: $id) { quantity priceAtTime }
+}
+
+query ListCategories @auth(level: PUBLIC, insecureReason: "Categories are public.") {
+  categories { name }
+}
+
+query ListProducts @auth(level: PUBLIC, insecureReason: "Product catalog is public.") {
+  products { name price }
+}
+
+query ListStoreProfiles @auth(level: PUBLIC, insecureReason: "Store details are public.") {
+  storeProfiles { storeName }
+}
+
+query ListTransactions @auth(level: USER) {
+  transactions { totalAmount timestamp }
+}
+
+query ListTransactionItems @auth(level: USER) {
+  transactionItems { quantity priceAtTime }
+}
+
+mutation UpdateCategory($id: UUID!, $name: String!) @auth(level: USER) {
+  category_update(id: $id, data: { name: $name })
+}
+
+mutation UpdateProduct($id: UUID!, $price: Float!) @auth(level: USER) {
+  product_update(id: $id, data: { price: $price })
+}
+
+mutation UpdateStoreProfile($id: UUID!, $name: String!) @auth(level: USER) {
+  storeProfile_update(id: $id, data: { storeName: $name })
+}
+
+mutation UpdateTransaction($id: UUID!, $notes: String!) @auth(level: USER) {
+  transaction_update(id: $id, data: { notes: $notes })
+}
+
+mutation UpdateTransactionItem($id: UUID!, $qty: Int!) @auth(level: USER) {
+  transactionItem_update(id: $id, data: { quantity: $qty })
+}
+
+mutation DeleteCategory($id: UUID!) @auth(level: USER) {
+  category_delete(id: $id)
+}
+
+mutation DeleteProduct($id: UUID!) @auth(level: USER) {
+  product_delete(id: $id)
+}
+
+mutation DeleteStoreProfile($id: UUID!) @auth(level: USER) {
+  storeProfile_delete(id: $id)
+}
+
+mutation DeleteTransaction($id: UUID!) @auth(level: USER) {
+  transaction_delete(id: $id)
+}
+
+mutation DeleteTransactionItem($id: UUID!) @auth(level: USER) {
+  transactionItem_delete(id: $id)
+}

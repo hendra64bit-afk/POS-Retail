@@ -1,0 +1,27 @@
+mutation SeedDatabase @transaction {
+  category_insertMany(data: [
+    { name: "Electronics", description: "Gadgets and devices" },
+    { name: "Stationery", description: "Office and school supplies" },
+    { name: "Furniture", description: "Home and office furniture" }
+  ])
+  product_insertMany(data: [
+    { name: "Laptop", price: 999.99, stockQuantity: 10, category: { id: "00000000-0000-0000-0000-000000000001" }, barcode: "123456789012" },
+    { name: "Notebook", price: 2.50, stockQuantity: 500, category: { id: "00000000-0000-0000-0000-000000000002" }, barcode: "987654321098" },
+    { name: "Desk Chair", price: 150.00, stockQuantity: 20, category: { id: "00000000-0000-0000-0000-000000000003" }, barcode: "555555555555" }
+  ])
+  storeProfile_insertMany(data: [
+    { storeName: "Tech Haven", address: "123 Silicon Ave", phoneNumber: "555-0101", currency: "USD" },
+    { storeName: "Stationery World", address: "456 Ink St", phoneNumber: "555-0202", currency: "USD" },
+    { storeName: "Home Comforts", address: "789 Wood Ln", phoneNumber: "555-0303", currency: "USD" }
+  ])
+  transaction_insertMany(data: [
+    { timestamp: "2023-10-01T10:00:00Z", totalAmount: 1002.49, paymentMethod: "Credit Card", customerName: "Alice Smith" },
+    { timestamp: "2023-10-01T11:30:00Z", totalAmount: 150.00, paymentMethod: "Cash", customerName: "Bob Jones" },
+    { timestamp: "2023-10-02T09:15:00Z", totalAmount: 5.00, paymentMethod: "Debit Card", customerName: "Charlie Brown" }
+  ])
+  transactionItem_insertMany(data: [
+    { quantity: 1, priceAtTime: 999.99, product: { id: "00000000-0000-0000-0000-000000000001" }, transaction: { id: "00000000-0000-0000-0000-000000000001" } },
+    { quantity: 1, priceAtTime: 150.00, product: { id: "00000000-0000-0000-0000-000000000003" }, transaction: { id: "00000000-0000-0000-0000-000000000002" } },
+    { quantity: 2, priceAtTime: 2.50, product: { id: "00000000-0000-0000-0000-000000000002" }, transaction: { id: "00000000-0000-0000-0000-000000000003" } }
+  ])
+}
