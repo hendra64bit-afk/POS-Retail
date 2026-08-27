@@ -1,6 +1,16 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // Aturan khusus untuk koleksi pengaturan toko (mencegah duplikasi storeId)
+    match /settings/{settingId} {
+      // Hanya izinkan pembuatan toko baru JIKA storeId tersebut BELUM pernah ada
+      allow create: if !exists(/databases/$(database)/documents/settings/$(settingId));
+      // Izinkan pembaruan (update) jika toko sudah ada
+      allow read, update, delete: if true;
+    }
+
+    // Aturan default untuk koleksi lainnya (products, users, sales, dll)
     match /{document=**} {
       allow read, write: if true;
     }

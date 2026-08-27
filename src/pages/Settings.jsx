@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { Save, Store, MapPin, Edit, Plus, Image as ImageIcon } from 'lucide-react';
 import Users from './Users';
@@ -8,6 +8,13 @@ const Settings = () => {
   
   const [storeName, setStoreName] = useState(storeSettings?.name || 'POS System');
   const [storeLogo, setStoreLogo] = useState(storeSettings?.logo || null);
+
+  useEffect(() => {
+    if (storeSettings) {
+      setStoreName(storeSettings.name || 'POS System');
+      setStoreLogo(storeSettings.logo || null);
+    }
+  }, [storeSettings]);
   
   const [editingBranch, setEditingBranch] = useState(null);
   const [branchData, setBranchData] = useState({ name: '', address: '' });
@@ -15,10 +22,15 @@ const Settings = () => {
   const [isAddingBranch, setIsAddingBranch] = useState(false);
   const [newBranchData, setNewBranchData] = useState({ name: '', address: '' });
 
-  const handleSaveStore = (e) => {
+  const handleSaveStore = async (e) => {
     e.preventDefault();
-    updateStoreSettings({ name: storeName, logo: storeLogo });
-    alert('Pengaturan toko berhasil disimpan!');
+    try {
+      await updateStoreSettings({ name: storeName, logo: storeLogo });
+      alert('Pengaturan toko berhasil disimpan!');
+    } catch (error) {
+      console.error(error);
+      alert('Gagal menyimpan pengaturan toko.');
+    }
   };
 
   const handleLogoUpload = (e) => {

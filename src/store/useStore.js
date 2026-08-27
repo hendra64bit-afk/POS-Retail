@@ -128,7 +128,9 @@ export const useStore = create(
         const settingsQ = query(collection(db, 'settings'), where('storeId', '==', storeId));
         const setUnsub = onSnapshot(settingsQ, (snapshot) => {
            if (!snapshot.empty) {
-             set({ storeSettings: snapshot.docs[0].data() });
+             const docData = snapshot.docs[0].data();
+             const docId = snapshot.docs[0].id;
+             set({ storeSettings: { ...docData, id: docId } });
            }
         });
         newListeners.push(setUnsub);
@@ -458,7 +460,30 @@ export const useStore = create(
       // Store Settings
       updateStoreSettings: async (settings) => {
         const storeId = get().getStoreId();
-        await updateDocInDb('settings', `store_${storeId}`, { ...settings, storeId });
+        const currentSettings = get().storeSettings;
+        const docId = currentSettings?.id || `store_${storeId}`;
+        
+        set({ storeSettings: { ...currentSettings, ...settings, storeId, id: docId } });
+        setDoc(doc(db, 'settings', docId), { ...settings, storeId }, { merge: true }).catch(console.error);
+      },
+
+      createNewStore: async (newStoreId, storeName) => {
+        // Cek apakah storeId sudah digunakan di database
+        const storeRef = doc(db, 'settings', `store_${newStoreId}`);
+        const snap = await getDocs(query(collection(db, 'settings'), where('storeId', '==', newStoreId)));
+        
+        if (!snap.empty) {
+          throw new Error('Store ID sudah digunakan! Silakan gunakan ID yang lain.');
+        }
+
+        // Jika belum ada, buat pengaturan toko baru
+        await setDoc(storeRef, {
+          storeId: newStoreId,
+          name: storeName,
+          createdAt: new Date().toISOString()
+        });
+        
+        return true;
       },
 
       // Shift Management
