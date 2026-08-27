@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { X, Printer } from 'lucide-react';
+import { useStore } from '../store/useStore';
 
 /**
  * InvoiceModal — digunakan untuk penjualan (sale) maupun pembelian (purchase).
@@ -14,6 +15,7 @@ import { X, Printer } from 'lucide-react';
  */
 const InvoiceModal = ({ type = 'sale', data, branchName, products = [], users = [], onClose, onReturnItem }) => {
   const printRef = useRef();
+  const { storeSettings } = useStore();
 
   if (!data) return null;
 
@@ -142,9 +144,10 @@ const InvoiceModal = ({ type = 'sale', data, branchName, products = [], users = 
           >
             {/* Header toko */}
             <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-              <div style={{ fontWeight: 700, fontSize: '15px' }}>{branchName}</div>
-              <div style={{ fontSize: '11px', color: '#555' }}>
-                {isSale ? 'Sistem Kasir POS' : 'Purchase Order'}
+              <div style={{ fontWeight: 700, fontSize: '16px' }}>{storeSettings?.name || 'POS System'}</div>
+              <div style={{ fontSize: '13px', fontWeight: 600, marginTop: '2px' }}>{branchName}</div>
+              <div style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>
+                {isSale ? 'Struk Pembayaran' : 'Purchase Order'}
               </div>
             </div>
 

@@ -65,10 +65,6 @@ const Login = () => {
             Masuk
           </button>
           
-          <div style={{ marginTop: '2rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            <p>Hint PIN Admin: 1234</p>
-            <p>Hint PIN Kasir: 1111</p>
-          </div>
         </form>
       </div>
     </div>

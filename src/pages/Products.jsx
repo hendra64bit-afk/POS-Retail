@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useStore } from '../store/useStore';
-import { Plus, Edit, Trash2, ChevronDown, ClipboardList, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, ChevronDown, ClipboardList, Search, ArrowRightLeft } from 'lucide-react';
 
 const Products = () => {
-  const { products, addProduct, updateProduct, deleteProduct, currentBranch } = useStore();
+  const { products, addProduct, updateProduct, deleteProduct, currentBranch, branches, transferStock, addOpname } = useStore();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -11,7 +11,9 @@ const Products = () => {
 
   // State for Opname Modal
   const [opnameModal, setOpnameModal] = useState({ isOpen: false, product: null, actualStock: '', note: '' });
-  const { addOpname } = useStore();
+  
+  // State for Transfer Modal
+  const [transferModal, setTransferModal] = useState({ isOpen: false, product: null, toBranchId: '', qty: '' });
 
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -83,6 +85,20 @@ const Products = () => {
     if (!isNaN(actualStock) && actualStock >= 0) {
       addOpname(opnameModal.product.id, currentBranch.id, actualStock, opnameModal.note);
       setOpnameModal({ isOpen: false, product: null, actualStock: '', note: '' });
+    }
+  };
+
+  const handleTransferSubmit = async (e) => {
+    e.preventDefault();
+    const qty = parseInt(transferModal.qty);
+    if (!isNaN(qty) && qty > 0 && transferModal.toBranchId) {
+      try {
+        await transferStock(transferModal.product.id, currentBranch.id, transferModal.toBranchId, qty);
+        setTransferModal({ isOpen: false, product: null, toBranchId: '', qty: '' });
+        alert('Transfer stok berhasil!');
+      } catch (err) {
+        alert(err.message);
+      }
     }
   };
 
@@ -276,6 +292,62 @@ const Products = () => {
         );
       })()}
 
+      {/* Transfer Modal */}
+      {transferModal.isOpen && (() => {
+        const product = transferModal.product;
+        const currentStock = product?.stocks?.[currentBranch?.id] || 0;
+        const availableBranches = branches.filter(b => b.id !== currentBranch?.id);
+        
+        return (
+          <div style={{
+            position: 'fixed', inset: 0, zIndex: 10000,
+            background: 'rgba(0,0,0,0.5)', display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+          }}>
+            <div className="card" style={{ width: '100%', maxWidth: '400px' }}>
+              <h3 style={{ marginBottom: '1rem' }}>Transfer Stok - {product.name}</h3>
+              <form onSubmit={handleTransferSubmit}>
+                <div className="form-group">
+                  <label className="form-label">Stok Saat Ini (Cabang Asal)</label>
+                  <input className="form-input" disabled value={currentStock} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Cabang Tujuan</label>
+                  <select 
+                    required 
+                    className="form-select" 
+                    value={transferModal.toBranchId} 
+                    onChange={e => setTransferModal({...transferModal, toBranchId: e.target.value})}
+                  >
+                    <option value="">Pilih Cabang Tujuan</option>
+                    {availableBranches.map(b => (
+                      <option key={b.id} value={b.id}>{b.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Jumlah Transfer</label>
+                  <input 
+                    required 
+                    type="number" 
+                    min="1" 
+                    max={currentStock}
+                    className="form-input" 
+                    value={transferModal.qty} 
+                    onChange={e => setTransferModal({...transferModal, qty: e.target.value})} 
+                  />
+                  <span style={{ fontSize: '11px', color: '#64748b' }}>Maksimal: {currentStock}</span>
+                </div>
+                <div className="flex justify-end gap-2" style={{ marginTop: '1rem' }}>
+                  <button type="button" className="btn btn-secondary" onClick={() => setTransferModal({ isOpen: false, product: null, toBranchId: '', qty: '' })}>Batal</button>
+                  <button type="submit" className="btn btn-primary" disabled={!transferModal.toBranchId || !transferModal.qty}>Transfer Stok</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="table-container">
         <table className="data-table">
           <thead>
@@ -316,6 +388,7 @@ const Products = () => {
                 </td>
                 <td style={{ textAlign: 'right' }}>
                   <div className="flex justify-end gap-2">
+                    <button className="btn btn-icon btn-secondary" title="Transfer Stok" onClick={() => setTransferModal({ isOpen: true, product: product, toBranchId: '', qty: '' })}><ArrowRightLeft size={16} /></button>
                     <button className="btn btn-icon btn-secondary" title="Opname Stok" onClick={() => setOpnameModal({ isOpen: true, product: product, actualStock: '', note: '' })}><ClipboardList size={16} /></button>
                     <button className="btn btn-icon btn-secondary" onClick={() => openForm(product)}><Edit size={16} /></button>
                     <button className="btn btn-icon btn-danger" onClick={() => deleteProduct(product.id)}><Trash2 size={16} /></button>

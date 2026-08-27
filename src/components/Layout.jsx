@@ -75,7 +75,6 @@ const Layout = ({ children }) => {
     { to: '/shift', icon: <Clock size={20} />, label: 'Shift & Kasir', adminOnly: false },
     { to: '/history', icon: <History size={20} />, label: 'History Penjualan', adminOnly: false },
     { to: '/reports', icon: <FileText size={20} />, label: 'Laporan Laba Rugi', adminOnly: true },
-    { to: '/users', icon: <Users size={20} />, label: 'Manajemen Pengguna', adminOnly: true },
     { to: '/settings', icon: <Settings size={20} />, label: 'Pengaturan', adminOnly: true }
   ].filter(item => !item.adminOnly || currentUser?.role === 'admin');
 

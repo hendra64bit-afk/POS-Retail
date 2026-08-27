@@ -44,7 +44,7 @@ const Users = () => {
   const closeForm = () => setIsFormOpen(false);
 
   return (
-    <div>
+    <div className="card">
       <div className="flex justify-between items-center" style={{ marginBottom: '1.5rem' }}>
         <div>
           <h2 style={{ marginBottom: '0.25rem' }}>Manajemen Pengguna</h2>

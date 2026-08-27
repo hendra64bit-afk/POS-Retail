@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { Save, Store, MapPin, Edit, Plus, Image as ImageIcon } from 'lucide-react';
+import Users from './Users';
 
 const Settings = () => {
   const { storeSettings, updateStoreSettings, branches, updateBranch, addBranch } = useStore();
@@ -213,6 +214,10 @@ const Settings = () => {
             ))}
           </div>
         </div>
+      </div>
+
+      <div style={{ marginTop: '2rem' }}>
+        <Users />
       </div>
     </div>
   );

@@ -171,6 +171,29 @@ export const useStore = create(
     await batch.commit();
   },
 
+  // Transfer Stock
+  transferStock: async (productId, fromBranchId, toBranchId, qty) => {
+    const product = get().products.find(p => p.id === productId);
+    if (!product) return;
+
+    const currentFromStock = product.stocks[fromBranchId] || 0;
+    const currentToStock = product.stocks[toBranchId] || 0;
+
+    if (currentFromStock < qty) {
+      throw new Error('Stok tidak mencukupi di cabang asal!');
+    }
+
+    const batch = writeBatch(db);
+    const productRef = doc(db, 'products', productId);
+    
+    batch.update(productRef, {
+      [`stocks.${fromBranchId}`]: currentFromStock - qty,
+      [`stocks.${toBranchId}`]: currentToStock + qty
+    });
+
+    await batch.commit();
+  },
+
   // Purchase (Updates COGS and Stock)
   addPurchase: async (purchase) => {
     const batch = writeBatch(db);
