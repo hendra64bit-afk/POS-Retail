@@ -4,15 +4,21 @@ import { useStore } from '../store/useStore';
 import { Store } from 'lucide-react';
 
 const Login = () => {
+  const [username, setUsername] = useState('');
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   
-  const { login, startShift, activeShift } = useStore();
+  const { login, startShift } = useStore();
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (login(pin)) {
+    setLoading(true);
+    setError('');
+    
+    const success = await login(username, pin);
+    if (success) {
       if (!useStore.getState().activeShift) {
         startShift(); // Auto start shift using last closing cash
       }
@@ -23,8 +29,9 @@ const Login = () => {
         navigate('/dashboard');
       }
     } else {
-      setError('PIN tidak valid. Silakan coba lagi.');
+      setError('Username atau PIN tidak valid. Silakan coba lagi.');
     }
+    setLoading(false);
   };
 
   return (
@@ -40,7 +47,7 @@ const Login = () => {
           <Store size={32} />
         </div>
         <h2 style={{ marginBottom: '0.5rem' }}>Selamat Datang</h2>
-        <p style={{ marginBottom: '2rem' }}>Silakan masukkan PIN Anda untuk masuk</p>
+        <p style={{ marginBottom: '2rem' }}>Silakan masukkan Username & PIN Anda untuk masuk</p>
         
         {error && (
           <div style={{ padding: '0.75rem', backgroundColor: '#fee2e2', color: 'var(--danger-color)', borderRadius: 'var(--radius-sm)', marginBottom: '1rem', fontSize: '0.875rem' }}>
@@ -50,19 +57,33 @@ const Login = () => {
 
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div className="form-group" style={{ textAlign: 'left' }}>
+            <label className="form-label">Username</label>
+            <input 
+              type="text" 
+              className="form-input" 
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Masukkan Username"
+              required
+              style={{ textAlign: 'center', fontSize: '1.25rem' }}
+            />
+          </div>
+          <div className="form-group" style={{ textAlign: 'left' }}>
             <label className="form-label">PIN Akses</label>
             <input 
               type="password" 
               className="form-input" 
               value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              placeholder="Masukkan PIN"
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+              maxLength="6"
+              minLength="6"
+              placeholder="Masukkan 6 Digit PIN"
               required
               style={{ textAlign: 'center', fontSize: '1.5rem', letterSpacing: '0.5em' }}
             />
           </div>
-          <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem', fontSize: '1rem', marginTop: '0.5rem' }}>
-            Masuk
+          <button type="submit" className="btn btn-primary" disabled={loading} style={{ padding: '0.75rem', fontSize: '1rem', marginTop: '0.5rem' }}>
+            {loading ? 'Masuk...' : 'Masuk'}
           </button>
           
         </form>

@@ -49,6 +49,7 @@ function App() {
           <Route path="/shift" element={<ProtectedRoute><Shift /></ProtectedRoute>} />
           <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
           <Route path="/reports" element={<ProtectedRoute requireAdmin><Reports /></ProtectedRoute>} />
+          <Route path="/users" element={<ProtectedRoute requireAdmin><Users /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute requireAdmin><Settings /></ProtectedRoute>} />
         </Routes>
       </React.Suspense>

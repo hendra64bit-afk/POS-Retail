@@ -10,6 +10,7 @@ const Users = () => {
   
   const [formData, setFormData] = useState({
     name: '',
+    username: '',
     role: 'cashier',
     branchId: branches[0]?.id || '',
     pin: ''
@@ -22,6 +23,29 @@ const Users = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Validasi PIN
+    if (formData.pin.length !== 6) {
+      alert("PIN harus tepat 6 angka.");
+      return;
+    }
+
+    // Validasi Username karakter
+    if (!/^[a-zA-Z]+$/.test(formData.username)) {
+      alert("Username hanya boleh mengandung huruf (tanpa spasi, angka, atau simbol).");
+      return;
+    }
+
+    // Validasi Username unik
+    const isUsernameExists = users.some(u => 
+      u.username?.toLowerCase() === formData.username.toLowerCase() && u.id !== editingId
+    );
+    
+    if (isUsernameExists) {
+      alert("Username sudah digunakan oleh akun lain. Silakan gunakan username yang berbeda.");
+      return;
+    }
+
     if (editingId) {
       updateUser(editingId, formData);
     } else {
@@ -32,10 +56,10 @@ const Users = () => {
 
   const openForm = (user = null) => {
     if (user) {
-      setFormData({ name: user.name, role: user.role, branchId: user.branchId, pin: user.pin });
+      setFormData({ name: user.name, username: user.username || '', role: user.role, branchId: user.branchId, pin: user.pin });
       setEditingId(user.id);
     } else {
-      setFormData({ name: '', role: 'cashier', branchId: branches[0]?.id || '', pin: '' });
+      setFormData({ name: '', username: '', role: 'cashier', branchId: branches[0]?.id || '', pin: '' });
       setEditingId(null);
     }
     setIsFormOpen(true);
@@ -65,8 +89,12 @@ const Users = () => {
                 <input required className="form-input" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
               </div>
               <div className="form-group">
-                <label className="form-label">PIN Akses (4 Digit)</label>
-                <input required type="password" maxLength="4" className="form-input" value={formData.pin} onChange={e => setFormData({...formData, pin: e.target.value})} />
+                <label className="form-label">Username</label>
+                <input required className="form-input" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value.toLowerCase().replace(/[^a-z]/g, '')})} placeholder="Hanya huruf" />
+              </div>
+              <div className="form-group">
+                <label className="form-label">PIN Akses (6 Digit)</label>
+                <input required type="password" maxLength="6" minLength="6" className="form-input" value={formData.pin} onChange={e => setFormData({...formData, pin: e.target.value.replace(/\D/g, '')})} placeholder="6 digit angka" />
               </div>
               <div className="form-group">
                 <label className="form-label">Role</label>
@@ -97,6 +125,7 @@ const Users = () => {
           <thead>
             <tr>
               <th>Nama Lengkap</th>
+              <th>Username</th>
               <th>Role</th>
               <th>Cabang Utama</th>
               <th style={{ textAlign: 'right' }}>Aksi</th>
@@ -106,6 +135,7 @@ const Users = () => {
             {users.map(user => (
               <tr key={user.id}>
                 <td style={{ fontWeight: 500 }}>{user.name}</td>
+                <td>{user.username || '-'}</td>
                 <td>
                   <span className={`badge ${user.role === 'admin' ? 'badge-warning' : 'badge-success'}`}>
                     {user.role === 'admin' ? 'Administrator' : 'Kasir'}
